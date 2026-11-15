@@ -1,0 +1,6 @@
+{
+  "name": "Raport Tahassus - MI Syuriyah",
+  "description": "Aplikasi penilaian dan cetak raport Tahassus Al-Qur'an dan Fashohati MI Syuriyah, Brebes. Dilengkapi rekap kelas, input nilai 37 surat, data siswa, dan cetak raport resmi.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Raport Tahassus - MI Syuriyah</title>
+    <meta name="description" content="Aplikasi penilaian dan cetak raport Tahassus Al-Qur'an dan Fashohati MI Syuriyah, Brebes. Dilengkapi rekap kelas, input nilai 37 surat, data siswa, dan cetak raport resmi." />
+    <meta property="og:title" content="Raport Tahassus - MI Syuriyah" />
+    <meta property="og:description" content="Aplikasi penilaian dan cetak raport Tahassus Al-Qur'an dan Fashohati MI Syuriyah, Brebes." />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600..800&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;0,8..60,700;1,8..60,400&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+    <script>
+      (function () {
+        try {
+          var saved = localStorage.getItem('raport-tahassus-theme');
+          var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+          if (saved === 'dark' || (!saved && prefersDark)) {
+            document.documentElement.classList.add('dark');
+          } else {
+            document.documentElement.classList.remove('dark');
+          }
+        } catch (e) {}
+      })();
+    </script>
+  </head>
+  <body class="bg-stone-50 dark:bg-stone-950 text-stone-900 dark:text-stone-100 antialiased selection:bg-emerald-200 selection:text-emerald-950 dark:selection:bg-emerald-800 dark:selection:text-emerald-100">
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
+
