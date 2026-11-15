@@ -18,6 +18,10 @@ export const RaportDocument: React.FC<RaportDocumentProps> = ({
   className,
   target
 }) => {
+  if (!student) {
+    return null;
+  }
+
   const calc = calculateStudent(student);
   const achievement = checkTargetAchievement(student, target, surahList);
   const doneSurahs = Object.keys(student.s || {})
@@ -30,7 +34,7 @@ export const RaportDocument: React.FC<RaportDocumentProps> = ({
 
   const renderSurahRows = (indices: number[]) => {
     return indices.map((idx) => {
-      const avg = getSurahAverage(student.s[idx]);
+      const avg = getSurahAverage(student.s?.[idx]);
       const pred = getPredikat(avg);
       return (
         <tr key={idx} className="border-b border-stone-800">

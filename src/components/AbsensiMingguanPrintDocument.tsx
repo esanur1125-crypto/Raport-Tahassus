@@ -43,7 +43,8 @@ export const AbsensiMingguanPrintDocument: React.FC<AbsensiMingguanPrintDocument
         return null;
       }
       activeDaysCount++;
-      const st: AttendanceStatus = dayRecord.records[s.id] || 'H';
+      const recs = dayRecord.records || {};
+      const st: AttendanceStatus = recs[s.id] || 'H';
       if (st === 'H') h++;
       else if (st === 'I') i++;
       else if (st === 'S') sakit++;
@@ -67,12 +68,13 @@ export const AbsensiMingguanPrintDocument: React.FC<AbsensiMingguanPrintDocument
   });
 
   // Calculate daily totals for bottom row
-  const dailyTotals = weekDays.map((wd, dayIdx) => {
+  const dailyTotals = weekDays.map((wd) => {
     const dayRecord = classAttendanceMap[wd.date];
     if (!dayRecord) return null;
     let hadir = 0;
+    const recs = dayRecord.records || {};
     students.forEach((s) => {
-      const st = dayRecord.records[s.id] || 'H';
+      const st = recs[s.id] || 'H';
       if (st === 'H') hadir++;
     });
     const pct = students.length ? Math.round((hadir / students.length) * 100) : 0;

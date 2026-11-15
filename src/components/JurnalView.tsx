@@ -79,10 +79,11 @@ export const JurnalView: React.FC<JurnalViewProps> = ({
 
   // Filtered entries for table view
   const filteredEntries = classEntries.filter((item) => {
+    const q = (searchQuery || '').toLowerCase().trim();
     const matchSearch =
-      item.studentNama.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.surahOrJilid.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.catatan.toLowerCase().includes(searchQuery.toLowerCase());
+      (item.studentNama || '').toLowerCase().includes(q) ||
+      (item.surahOrJilid || '').toLowerCase().includes(q) ||
+      (item.catatan || '').toLowerCase().includes(q);
     const matchType = filterType === 'all' || item.tipe === filterType;
     const matchStudent = filterStudentId === 'all' || item.studentId === filterStudentId;
     const matchDate = !filterDate || item.tanggal === filterDate;
@@ -157,16 +158,16 @@ export const JurnalView: React.FC<JurnalViewProps> = ({
     const headers = ['No', 'Tanggal', 'Nama Siswa', 'Kelas', 'Jenis Setoran', 'Materi', 'Ayat/Halaman', 'Nilai', 'Status', 'Catatan Evaluasi', 'Guru'];
     const rows = filteredEntries.map((item, idx) => [
       idx + 1,
-      item.tanggal,
-      `"${item.studentNama.replace(/"/g, '""')}"`,
-      item.className,
-      item.tipe,
-      `"${item.surahOrJilid.replace(/"/g, '""')}"`,
-      `"${item.ayatOrHalaman.replace(/"/g, '""')}"`,
-      item.nilai !== null ? item.nilai : '',
-      item.status,
+      item.tanggal || '',
+      `"${(item.studentNama || '').replace(/"/g, '""')}"`,
+      item.className || activeClass,
+      item.tipe || '',
+      `"${(item.surahOrJilid || '').replace(/"/g, '""')}"`,
+      `"${(item.ayatOrHalaman || '').replace(/"/g, '""')}"`,
+      item.nilai !== null && item.nilai !== undefined ? item.nilai : '',
+      item.status || '',
       `"${(item.catatan || '').replace(/"/g, '""')}"`,
-      `"${item.guru.replace(/"/g, '""')}"`
+      `"${(item.guru || school.guru || '').replace(/"/g, '""')}"`
     ].join(','));
 
     const csvContent = '\uFEFF' + [headers.join(','), ...rows].join('\r\n');

@@ -90,7 +90,7 @@ export const AbsensiView: React.FC<AbsensiViewProps> = ({
   let alpaCount = 0;
 
   students.forEach((s) => {
-    const status = currentAttendance.records[s.id] || 'H';
+    const status = (currentAttendance?.records || {})[s.id] || 'H';
     if (status === 'H') hadirCount++;
     else if (status === 'I') izinCount++;
     else if (status === 'S') sakitCount++;
@@ -103,17 +103,17 @@ export const AbsensiView: React.FC<AbsensiViewProps> = ({
   const exportAttendanceCsv = () => {
     const headers = ['No', 'Tanggal', 'NISN', 'Nama Siswa', 'L/P', 'Kelas', 'Status Kehadiran', 'Keterangan Sesi'];
     const rows = students.map((s, idx) => {
-      const st = currentAttendance.records[s.id] || 'H';
+      const st = (currentAttendance?.records || {})[s.id] || 'H';
       const label = st === 'H' ? 'Hadir' : st === 'I' ? 'Izin' : st === 'S' ? 'Sakit' : 'Alpa';
       return [
         idx + 1,
         selectedDate,
-        `"${s.nisn}"`,
-        `"${s.nama.replace(/"/g, '""')}"`,
-        s.jk,
+        `"${s.nisn || '-'}"`,
+        `"${(s.nama || '').replace(/"/g, '""')}"`,
+        s.jk || 'L',
         activeClass,
         label,
-        `"${(currentAttendance.catatan || '').replace(/"/g, '""')}"`
+        `"${(currentAttendance?.catatan || '').replace(/"/g, '""')}"`
       ].join(',');
     });
 
@@ -350,7 +350,8 @@ export const AbsensiView: React.FC<AbsensiViewProps> = ({
                   tanggal: printDate,
                   records: {}
                 });
-                const hCount = students.filter((s) => (targetAtt.records[s.id] || 'H') === 'H').length;
+                const targetRecs = targetAtt.records || {};
+                const hCount = students.filter((s) => (targetRecs[s.id] || 'H') === 'H').length;
                 return (
                   <div className="p-3 bg-emerald-50/70 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800 rounded-xl text-xs flex items-center justify-between text-emerald-900 dark:text-emerald-200">
                     <span>

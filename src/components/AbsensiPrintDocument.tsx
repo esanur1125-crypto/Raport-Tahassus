@@ -23,8 +23,10 @@ export const AbsensiPrintDocument: React.FC<AbsensiPrintDocumentProps> = ({
   let sakitCount = 0;
   let alpaCount = 0;
 
+  const records = attendanceDay?.records || {};
+
   students.forEach((s) => {
-    const st = attendanceDay.records[s.id] || 'H';
+    const st = records[s.id] || 'H';
     if (st === 'H') hadirCount++;
     else if (st === 'I') izinCount++;
     else if (st === 'S') sakitCount++;
@@ -97,7 +99,7 @@ export const AbsensiPrintDocument: React.FC<AbsensiPrintDocumentProps> = ({
         </thead>
         <tbody>
           {students.map((st, idx) => {
-            const status: AttendanceStatus = attendanceDay.records[st.id] || 'H';
+            const status: AttendanceStatus = records[st.id] || 'H';
             const statusLabel =
               status === 'H' ? 'Hadir' : status === 'I' ? 'Izin' : status === 'S' ? 'Sakit' : 'Alpa';
 

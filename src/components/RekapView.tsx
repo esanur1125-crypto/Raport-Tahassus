@@ -76,17 +76,18 @@ export const RekapView: React.FC<RekapViewProps> = ({
 
   // Filtered and sorted student rows
   const filteredRows = useMemo(() => {
+    const q = (searchQuery || '').toLowerCase().trim();
     return stats.rows
       .filter(({ student }) => {
-        const matchQuery =
-          student.nama.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          student.nisn.toLowerCase().includes(searchQuery.toLowerCase());
+        const nama = (student.nama || '').toLowerCase();
+        const nisn = (student.nisn || '').toLowerCase();
+        const matchQuery = nama.includes(q) || nisn.includes(q);
         const matchJilid = filterJilid === 'all' || student.jilid === filterJilid;
         return matchQuery && matchJilid;
       })
       .sort((a, b) => {
         if (sortBy === 'nama') {
-          return a.student.nama.localeCompare(b.student.nama);
+          return (a.student.nama || '').localeCompare(b.student.nama || '');
         }
         if (sortBy === 'hafalan') {
           return (b.calc.n || 0) - (a.calc.n || 0) || (b.calc.f || 0) - (a.calc.f || 0);

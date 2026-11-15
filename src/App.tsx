@@ -264,6 +264,13 @@ export default function App() {
   };
 
   // Print triggers
+  const handleTriggerSingleRaportPrint = () => {
+    setPrintType('raport-single');
+    setTimeout(() => {
+      window.print();
+    }, 150);
+  };
+
   const handleTriggerBatchRaportPrint = () => {
     setPrintType('raport-batch');
     setTimeout(() => {
@@ -407,6 +414,7 @@ export default function App() {
             activeClass={activeClass}
             target={activeClassTarget}
             onTriggerBatchPrint={handleTriggerBatchRaportPrint}
+            onTriggerSinglePrint={handleTriggerSingleRaportPrint}
           />
         )}
 

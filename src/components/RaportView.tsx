@@ -20,6 +20,7 @@ interface RaportViewProps {
   activeClass: string;
   target?: ClassTarget;
   onTriggerBatchPrint: () => void;
+  onTriggerSinglePrint?: () => void;
 }
 
 export const RaportView: React.FC<RaportViewProps> = ({
@@ -30,7 +31,8 @@ export const RaportView: React.FC<RaportViewProps> = ({
   surahList,
   activeClass,
   target,
-  onTriggerBatchPrint
+  onTriggerBatchPrint,
+  onTriggerSinglePrint
 }) => {
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
@@ -57,7 +59,11 @@ export const RaportView: React.FC<RaportViewProps> = ({
   };
 
   const handlePrintSingle = () => {
-    window.print();
+    if (onTriggerSinglePrint) {
+      onTriggerSinglePrint();
+    } else {
+      window.print();
+    }
   };
 
   const handleDownloadSinglePdf = async () => {

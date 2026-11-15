@@ -57,13 +57,14 @@ export const NilaiView: React.FC<NilaiViewProps> = ({
       else numVal = Math.max(0, Math.min(100, numVal));
     }
 
-    const currentTuple: ScoreTuple = student.s[surahIdx]
-      ? [...student.s[surahIdx]]
+    const currentScores = student.s || {};
+    const currentTuple: ScoreTuple = currentScores[surahIdx]
+      ? [...currentScores[surahIdx]]
       : [null, null, null];
 
     currentTuple[aspectIdx] = numVal;
 
-    const newScores = { ...student.s };
+    const newScores = { ...currentScores };
     if (currentTuple.every((v) => v === null)) {
       delete newScores[surahIdx];
     } else {
@@ -77,7 +78,7 @@ export const NilaiView: React.FC<NilaiViewProps> = ({
   };
 
   const handleClearSurah = (surahIdx: number) => {
-    const newScores = { ...student.s };
+    const newScores = { ...(student.s || {}) };
     delete newScores[surahIdx];
     onUpdateStudent({
       ...student,
@@ -94,7 +95,7 @@ export const NilaiView: React.FC<NilaiViewProps> = ({
 
   // Quick fill empty surahs up to selected surah
   const handleQuickFillEmpty = (upToSurahIdx: number, score: number) => {
-    const newScores = { ...student.s };
+    const newScores = { ...(student.s || {}) };
     for (let i = 0; i <= upToSurahIdx; i++) {
       if (!newScores[i]) {
         newScores[i] = [score, score, score];

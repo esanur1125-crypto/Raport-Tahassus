@@ -28,8 +28,13 @@ export function getSurahAverage(scores: ScoreTuple | undefined): number | null {
   return mean(valid);
 }
 
-export function calculateStudent(student: Student): StudentCalc {
-  const keys = Object.keys(student.s || {});
+export function calculateStudent(student?: Student | null): StudentCalc {
+  if (!student) {
+    return { t: null, m: null, l: null, f: null, g: null, n: 0 };
+  }
+
+  const scores = student.s || {};
+  const keys = Object.keys(scores);
   if (!keys.length) {
     return { t: null, m: null, l: null, f: null, g: null, n: 0 };
   }
@@ -37,8 +42,8 @@ export function calculateStudent(student: Student): StudentCalc {
   const getAspectAverage = (aspectIdx: 0 | 1 | 2): number | null => {
     const values: number[] = [];
     for (const key of keys) {
-      const tuple = student.s[key];
-      if (tuple && tuple[aspectIdx] !== null && !isNaN(tuple[aspectIdx]!)) {
+      const tuple = scores[key];
+      if (tuple && tuple[aspectIdx] !== null && tuple[aspectIdx] !== undefined && !isNaN(tuple[aspectIdx]!)) {
         values.push(tuple[aspectIdx]!);
       }
     }

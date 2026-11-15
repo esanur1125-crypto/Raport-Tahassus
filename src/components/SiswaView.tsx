@@ -71,10 +71,12 @@ export const SiswaView: React.FC<SiswaViewProps> = ({
     }
   };
 
-  const filteredStudents = students.filter((s) =>
-    s.nama.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    s.nisn.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const q = (searchQuery || '').toLowerCase().trim();
+  const filteredStudents = students.filter((s) => {
+    const nama = (s.nama || '').toLowerCase();
+    const nisn = (s.nisn || '').toLowerCase();
+    return nama.includes(q) || nisn.includes(q);
+  });
 
   return (
     <div className="space-y-6">

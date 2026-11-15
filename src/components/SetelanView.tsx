@@ -48,6 +48,8 @@ export const SetelanView: React.FC<SetelanViewProps> = ({
   const [selectedTargetClass, setSelectedTargetClass] = useState<string>('4');
   const [targetToast, setTargetToast] = useState(false);
 
+  const [logoError, setLogoError] = useState<string | null>(null);
+
   const fileInputLRef = useRef<HTMLInputElement>(null);
   const fileInputRRef = useRef<HTMLInputElement>(null);
 
@@ -88,11 +90,13 @@ export const SetelanView: React.FC<SetelanViewProps> = ({
   };
 
   const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>, side: 'logoL' | 'logoR') => {
+    setLogoError(null);
     const file = e.target.files?.[0];
     if (!file) return;
 
     if (!file.type.startsWith('image/')) {
-      alert('File harus berupa gambar (PNG atau JPG)');
+      setLogoError('File harus berupa gambar (PNG atau JPG)');
+      setTimeout(() => setLogoError(null), 4000);
       return;
     }
 
@@ -131,10 +135,37 @@ export const SetelanView: React.FC<SetelanViewProps> = ({
 
   const handleCopyBackup = () => {
     const text = JSON.stringify(fullState, null, 2);
-    navigator.clipboard.writeText(text).then(() => {
+    const markCopied = () => {
       setCopiedBackup(true);
       setTimeout(() => setCopiedBackup(false), 2500);
-    });
+    };
+
+    if (navigator?.clipboard?.writeText) {
+      navigator.clipboard.writeText(text).then(markCopied).catch(() => {
+        fallbackCopyText(text);
+        markCopied();
+      });
+    } else {
+      fallbackCopyText(text);
+      markCopied();
+    }
+  };
+
+  const fallbackCopyText = (text: string) => {
+    try {
+      const textArea = document.createElement('textarea');
+      textArea.value = text;
+      textArea.style.position = 'fixed';
+      textArea.style.left = '-999999px';
+      textArea.style.top = '-999999px';
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+      document.execCommand('copy');
+      textArea.remove();
+    } catch {
+      // ignore
+    }
   };
 
   const handleRestoreSubmit = () => {
@@ -176,6 +207,11 @@ export const SetelanView: React.FC<SetelanViewProps> = ({
           <p className="text-xs text-stone-500 dark:text-stone-400">
             Logo akan muncul pada kop surat resmi raport (kiri dan kanan). Disarankan gambar format PNG atau JPG.
           </p>
+          {logoError && (
+            <div className="mt-2 text-xs font-semibold text-rose-700 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/60 p-2.5 rounded-xl border border-rose-200 dark:border-rose-900 animate-in fade-in">
+              {logoError}
+            </div>
+          )}
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

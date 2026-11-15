@@ -28,14 +28,15 @@ function tw(s: string, bold?: boolean): number {
   return w / 1000;
 }
 
-function pdfEnc(s: string): string {
+function pdfEnc(s: string | number | undefined | null): string {
+  if (s === undefined || s === null) return '';
   return String(s)
     .replace(/[^\x20-\x7e]/g, (c) => (c === '–' ? '\x96' : (c.charCodeAt(0) > 159 && c.charCodeAt(0) < 256 ? c : '?')))
     .replace(/([\\()])/g, '\\$1');
 }
 
 function wrapText(s: string, maxMm: number, size: number, bold?: boolean): string[] {
-  const words = String(s).split(/\s+/);
+  const words = String(s || '').split(/\s+/);
   const lines: string[] = [];
   let current = '';
   words.forEach((w) => {
@@ -60,32 +61,51 @@ interface ImageObj {
 async function jpegOf(src: string): Promise<ImageObj | null> {
   return new Promise((resolve) => {
     if (!src || src.length < 10) return resolve(null);
-    const img = new Image();
-    img.crossOrigin = 'anonymous';
-    img.onerror = () => resolve(null);
-    img.onload = () => {
-      try {
-        const w = img.width || 100;
-        const h = img.height || 100;
-        const cv = document.createElement('canvas');
-        cv.width = w;
-        cv.height = h;
-        const ctx = cv.getContext('2d');
-        if (!ctx) return resolve(null);
-        ctx.fillStyle = '#ffffff';
-        ctx.fillRect(0, 0, w, h);
-        ctx.drawImage(img, 0, 0, w, h);
-        const b64 = cv.toDataURL('image/jpeg', 0.92).split(',')[1];
-        if (!b64) return resolve(null);
-        const bin = atob(b64);
-        const u = new Uint8Array(bin.length);
-        for (let i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i);
-        resolve({ w, h, bytes: u });
-      } catch {
-        resolve(null);
+    let resolved = false;
+    const finish = (result: ImageObj | null) => {
+      if (!resolved) {
+        resolved = true;
+        resolve(result);
       }
     };
-    img.src = src;
+    // 2500ms safety timeout to prevent hanging UI during PDF generation
+    const timer = setTimeout(() => finish(null), 2500);
+
+    try {
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.onerror = () => {
+        clearTimeout(timer);
+        finish(null);
+      };
+      img.onload = () => {
+        clearTimeout(timer);
+        try {
+          const w = img.width || 100;
+          const h = img.height || 100;
+          const cv = document.createElement('canvas');
+          cv.width = w;
+          cv.height = h;
+          const ctx = cv.getContext('2d');
+          if (!ctx) return finish(null);
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(0, 0, w, h);
+          ctx.drawImage(img, 0, 0, w, h);
+          const b64 = cv.toDataURL('image/jpeg', 0.92).split(',')[1];
+          if (!b64) return finish(null);
+          const bin = atob(b64);
+          const u = new Uint8Array(bin.length);
+          for (let i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i);
+          finish({ w, h, bytes: u });
+        } catch {
+          finish(null);
+        }
+      };
+      img.src = src;
+    } catch {
+      clearTimeout(timer);
+      finish(null);
+    }
   });
 }
 
@@ -152,17 +172,19 @@ function drawPage(
     const row = (cells: string[], bold?: boolean, fill?: boolean) => {
       let cx = x;
       cells.forEach((c, i) => {
-        RC(cx, y, cols[i].w, rh, fill);
-        const al = cols[i].a || 'left';
-        T(c, al === 'center' ? cx + cols[i].w / 2 : cx + 1.8, y + rh * 0.68, { b: bold, s: fs, a: al });
-        cx += cols[i].w;
+        const colDef = cols[i] || { w: 20, a: 'left' };
+        RC(cx, y, colDef.w, rh, fill);
+        const al = colDef.a || 'left';
+        T(c ?? '', al === 'center' ? cx + colDef.w / 2 : cx + 1.8, y + rh * 0.68, { b: bold, s: fs, a: al });
+        cx += colDef.w;
       });
       y += rh;
     };
     row(head, true, true);
     rows.forEach((r) => {
-      const isObj = typeof r === 'object' && 'cells' in r;
-      row(isObj ? (r as any).cells : r, isObj ? (r as any).bold : false);
+      if (!r) return;
+      const isObj = typeof r === 'object' && r !== null && 'cells' in r && Array.isArray((r as any).cells);
+      row(isObj ? (r as any).cells : (Array.isArray(r) ? r : []), isObj ? (r as any).bold : false);
     });
     return y;
   };
@@ -247,7 +269,7 @@ function drawPage(
   const cols3: ColDef[] = [{ w: 10, a: 'center' }, { w: 41 }, { w: 17, a: 'center' }, { w: 17, a: 'center' }];
   const rws = (a: number[]) =>
     a.map((i) => {
-      const v = getSurahAverage(st.s[i]);
+      const v = getSurahAverage(st.s?.[i]);
       return [String(i + 1), surahList[i] || `Surat ${i + 1}`, formatScore(v), getPredikat(v) || '–'];
     });
   const hd = ['No', 'Surat', 'Nilai', 'Predikat'];
@@ -402,7 +424,7 @@ export async function generateAndDownloadPdf(
   a.download =
     filename ||
     (students.length === 1
-      ? `Raport_${students[0].nama.replace(/[^A-Za-z0-9]+/g, '_')}.pdf`
+      ? `Raport_${(students[0]?.nama || 'Siswa').replace(/[^A-Za-z0-9]+/g, '_')}.pdf`
       : `Raport_Tahassus_Kelas_${className}.pdf`);
   document.body.appendChild(a);
   a.click();

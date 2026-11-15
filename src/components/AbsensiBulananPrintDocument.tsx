@@ -35,7 +35,8 @@ export const AbsensiBulananPrintDocument: React.FC<AbsensiBulananPrintDocumentPr
     let a = 0;
 
     monthDays.forEach((dayRecord) => {
-      const st: AttendanceStatus = dayRecord.records[s.id] || 'H';
+      const recs = dayRecord.records || {};
+      const st: AttendanceStatus = recs[s.id] || 'H';
       if (st === 'H') h++;
       else if (st === 'I') i++;
       else if (st === 'S') sakit++;
