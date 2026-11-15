@@ -54,7 +54,7 @@ export const SetelanView: React.FC<SetelanViewProps> = ({
   const fileInputRRef = useRef<HTMLInputElement>(null);
 
   const activeClassTarget: ClassTarget = targets[selectedTargetClass] || {
-    targetJilid: 'Jilid I',
+    targetJilid: 'Jilid Dasar',
     targetHafalanSurah: 'Al-Fiil',
     targetSurahCount: 10,
     kkmNilai: 75,

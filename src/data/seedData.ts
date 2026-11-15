@@ -2,12 +2,12 @@ import { AppState, Predikat, ClassTarget } from '../types';
 
 export const JILID_OPTIONS = [
   '',
+  'Jilid Dasar',
   'Jilid I',
   'Jilid II',
   'Jilid III',
   'Jilid IV',
   'Jilid V',
-  'Jilid VI',
   "Al-Qur'an"
 ];
 
@@ -22,46 +22,46 @@ export const ROMAN_CLASS: Record<string, string> = {
 
 export const DEFAULT_CLASS_TARGETS: Record<string, ClassTarget> = {
   '1': {
-    targetJilid: 'Jilid I',
+    targetJilid: 'Jilid Dasar',
     targetHafalanSurah: 'Al-Fiil',
     targetSurahCount: 10,
     kkmNilai: 75,
-    keterangan: 'Pengenalan makhraj huruf hijaiyah dan hafalan surat pendek dasar'
+    keterangan: 'Pengenalan huruf hijaiyah (Jilid Dasar) dan hafalan surat pendek dasar'
   },
   '2': {
-    targetJilid: 'Jilid II',
+    targetJilid: 'Jilid I',
     targetHafalanSurah: 'Al-Ashr',
     targetSurahCount: 12,
     kkmNilai: 75,
-    keterangan: 'Peningkatan fashohati kalimat bersambung dan hafalan juz 30 awal'
+    keterangan: 'Penguasaan makhraj huruf Jilid I dan hafalan juz 30 awal'
   },
   '3': {
-    targetJilid: 'Jilid III',
+    targetJilid: 'Jilid II',
     targetHafalanSurah: 'Al-Qoriah',
     targetSurahCount: 14,
     kkmNilai: 75,
-    keterangan: 'Penerapan mad dasar dan kelancaran tartil'
+    keterangan: 'Peningkatan fashohati kalimat bersambung (Jilid II) dan kelancaran tartil'
   },
   '4': {
     targetJilid: 'Jilid III',
     targetHafalanSurah: "Al-A'la",
     targetSurahCount: 28,
     kkmNilai: 80,
-    keterangan: 'Hukum nun sukun, tanwin, mim sukun, dan kelancaran surat pertengahan juz 30'
+    keterangan: 'Hukum nun sukun, tanwin, mim sukun (Jilid III), dan kelancaran juz 30'
   },
   '5': {
     targetJilid: 'Jilid IV',
     targetHafalanSurah: 'Al-Muthaffifin',
     targetSurahCount: 32,
     kkmNilai: 80,
-    keterangan: 'Tajwid lanjutan, mad far\'i, dan muroja\'ah intensif'
+    keterangan: 'Tajwid lanjutan, mad far\'i (Jilid IV), dan muroja\'ah intensif'
   },
   '6': {
-    targetJilid: "Al-Qur'an",
+    targetJilid: 'Jilid V',
     targetHafalanSurah: 'An-Naba',
     targetSurahCount: 37,
     kkmNilai: 80,
-    keterangan: 'Khatam Juz 30 (37 surat) & siap membaca Al-Qur\'an 30 Juz secara mandiri'
+    keterangan: 'Tuntas Jilid V (Fashohati/Ghorib) & khatam Juz 30 (37 surat) secara mandiri'
   }
 };
 

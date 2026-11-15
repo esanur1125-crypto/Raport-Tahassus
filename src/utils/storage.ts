@@ -19,7 +19,7 @@ export function loadAppState(): AppState {
           '6': parsed.classes?.['6'] || SEED_DATA.classes['6'] || []
         };
 
-        // Ensure student ids
+        // Ensure student ids & normalize legacy Jilid VI
         Object.values(classes).forEach((arr) => {
           arr.forEach((s, idx) => {
             if (!s.id) {
@@ -28,8 +28,37 @@ export function loadAppState(): AppState {
             if (!s.s) {
               s.s = {};
             }
+            if (s.jilid === 'Jilid VI') {
+              s.jilid = 'Jilid V';
+            }
           });
         });
+
+        // Upgrade untouched legacy default targets to Jilid Dasar .. Jilid V
+        let resolvedTargets = SEED_DATA.targets;
+        if (parsed.targets) {
+          const isLegacyDefault =
+            parsed.targets['1']?.targetJilid === 'Jilid I' &&
+            parsed.targets['2']?.targetJilid === 'Jilid II' &&
+            parsed.targets['3']?.targetJilid === 'Jilid III' &&
+            parsed.targets['4']?.targetJilid === 'Jilid III' &&
+            parsed.targets['5']?.targetJilid === 'Jilid IV' &&
+            parsed.targets['6']?.targetJilid === "Al-Qur'an";
+
+          if (isLegacyDefault) {
+            resolvedTargets = JSON.parse(JSON.stringify(SEED_DATA.targets));
+          } else {
+            resolvedTargets = { ...SEED_DATA.targets, ...parsed.targets };
+            Object.keys(resolvedTargets).forEach((cls) => {
+              if (resolvedTargets![cls]?.targetJilid === 'Jilid VI') {
+                resolvedTargets![cls] = {
+                  ...resolvedTargets![cls],
+                  targetJilid: 'Jilid V'
+                };
+              }
+            });
+          }
+        }
 
         return {
           school: parsed.school,
@@ -37,7 +66,7 @@ export function loadAppState(): AppState {
           surah: parsed.surah,
           journal: Array.isArray(parsed.journal) ? parsed.journal : SEED_DATA.journal,
           attendance: Array.isArray(parsed.attendance) ? parsed.attendance : SEED_DATA.attendance,
-          targets: parsed.targets ? { ...SEED_DATA.targets, ...parsed.targets } : SEED_DATA.targets
+          targets: resolvedTargets
         };
       }
     }

@@ -202,9 +202,22 @@ export function checkTargetAchievement(
     return { jilidAchieved: true, hafalanAchieved: true, nilaiAchieved: true, allAchieved: true };
   }
 
-  const jilidRank = ['', 'Jilid I', 'Jilid II', 'Jilid III', 'Jilid IV', 'Jilid V', 'Jilid VI', "Al-Qur'an"];
-  const studentJilidIdx = jilidRank.indexOf(student.jilid || '');
-  const targetJilidIdx = jilidRank.indexOf(target.targetJilid || '');
+  const getJilidRank = (rawJilid?: string): number => {
+    const val = (rawJilid || '').trim().toLowerCase();
+    if (!val) return 0;
+    if (val === 'jilid dasar' || val === 'dasar') return 1;
+    if (val === 'jilid i' || val === 'jilid 1') return 2;
+    if (val === 'jilid ii' || val === 'jilid 2') return 3;
+    if (val === 'jilid iii' || val === 'jilid 3') return 4;
+    if (val === 'jilid iv' || val === 'jilid 4') return 5;
+    if (val === 'jilid v' || val === 'jilid 5') return 6;
+    if (val === 'jilid vi' || val === 'jilid 6') return 6;
+    if (val === "al-qur'an" || val === 'alquran' || val === "al-qur’an") return 7;
+    return 0;
+  };
+
+  const studentJilidIdx = getJilidRank(student.jilid);
+  const targetJilidIdx = getJilidRank(target.targetJilid);
   const jilidAchieved = targetJilidIdx <= 0 || (studentJilidIdx >= targetJilidIdx && studentJilidIdx > 0);
 
   // Hafalan check
