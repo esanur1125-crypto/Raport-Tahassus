@@ -1,15 +1,20 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Student } from '../types';
 import { JILID_OPTIONS } from '../data/seedData';
-import { exportClassToCsv } from '../utils/storage';
+import {
+  exportClassToCsv,
+  downloadStudentTemplatePerClass,
+  downloadStudentTemplateMassal,
+  ParsedImportStudent
+} from '../utils/storage';
 import { UploadSiswaModal } from './UploadSiswaModal';
-import { UserPlus, Trash2, Download, Search, Users, Upload } from 'lucide-react';
+import { UserPlus, Trash2, Download, Search, Users, Upload, FileSpreadsheet, Layers, ChevronDown, Check } from 'lucide-react';
 
 interface SiswaViewProps {
   students: Student[];
   activeClass: string;
   onAddStudent: (newStudent: Omit<Student, 'id' | 's'>) => void;
-  onImportStudents: (imported: Omit<Student, 'id' | 's'>[], mode: 'append' | 'replace') => void;
+  onImportStudents: (imported: ParsedImportStudent[], mode: 'append' | 'replace') => void;
   onUpdateStudent: (updated: Student) => void;
   onDeleteStudent: (id: string) => void;
 }
@@ -25,6 +30,24 @@ export const SiswaView: React.FC<SiswaViewProps> = ({
   const [searchQuery, setSearchQuery] = useState('');
   const [armedDeleteId, setArmedDeleteId] = useState<string | null>(null);
   const [showUploadModal, setShowUploadModal] = useState(false);
+  const [showTemplateMenu, setShowTemplateMenu] = useState(false);
+  const [toastMsg, setToastMsg] = useState<string | null>(null);
+  const templateMenuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (templateMenuRef.current && !templateMenuRef.current.contains(e.target as Node)) {
+        setShowTemplateMenu(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const showToast = (msg: string) => {
+    setToastMsg(msg);
+    setTimeout(() => setToastMsg((cur) => (cur === msg ? null : cur)), 3500);
+  };
 
   // New Student form state
   const [newNama, setNewNama] = useState('');
@@ -85,8 +108,24 @@ export const SiswaView: React.FC<SiswaViewProps> = ({
         className={activeClass}
         isOpen={showUploadModal}
         onClose={() => setShowUploadModal(false)}
-        onImport={onImportStudents}
+        onImport={(imported, mode) => {
+          onImportStudents(imported, mode);
+          const hasMassal = imported.some((i) => Boolean(i.targetClass));
+          showToast(
+            hasMassal
+              ? `Berhasil mengimpor ${imported.length} siswa secara massal!`
+              : `Berhasil mengimpor ${imported.length} siswa ke Kelas ${activeClass}!`
+          );
+        }}
       />
+
+      {/* Toast Notification */}
+      {toastMsg && (
+        <div className="flex items-center gap-2 px-4 py-2.5 text-xs font-semibold text-emerald-900 dark:text-emerald-200 bg-emerald-50 dark:bg-emerald-950/70 border border-emerald-200 dark:border-emerald-800 rounded-xl shadow-2xs">
+          <Check className="w-4 h-4 text-emerald-700 dark:text-emerald-400 shrink-0" />
+          <span>{toastMsg}</span>
+        </div>
+      )}
 
       {/* Top action & stat strip */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -105,6 +144,64 @@ export const SiswaView: React.FC<SiswaViewProps> = ({
 
         {/* Action Buttons */}
         <div className="flex flex-wrap items-center gap-2">
+          {/* Unduh Template Dropdown (Per Kelas & Massal) */}
+          <div className="relative" ref={templateMenuRef}>
+            <button
+              type="button"
+              onClick={() => setShowTemplateMenu((prev) => !prev)}
+              className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-sky-800 dark:text-sky-300 bg-sky-50 dark:bg-sky-950/60 hover:bg-sky-100 dark:hover:bg-sky-900/60 border border-sky-300 dark:border-sky-800 rounded-xl transition-colors cursor-pointer shadow-2xs"
+              title="Unduh template format CSV/Excel untuk input siswa per kelas atau massal semua kelas"
+            >
+              <FileSpreadsheet className="w-4 h-4" />
+              <span>Unduh Template</span>
+              <ChevronDown className={`w-3.5 h-3.5 transition-transform ${showTemplateMenu ? 'rotate-180' : ''}`} />
+            </button>
+
+            {showTemplateMenu && (
+              <div className="absolute right-0 mt-2 w-72 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-700 rounded-xl shadow-xl z-30 p-1.5 space-y-1">
+                <button
+                  type="button"
+                  onClick={() => {
+                    downloadStudentTemplatePerClass(activeClass);
+                    setShowTemplateMenu(false);
+                    showToast(`Template input siswa Kelas ${activeClass} berhasil diunduh.`);
+                  }}
+                  className="w-full flex items-start gap-2.5 p-2.5 text-left rounded-lg hover:bg-emerald-50 dark:hover:bg-emerald-950/50 transition-colors cursor-pointer"
+                >
+                  <Download className="w-4 h-4 text-emerald-700 dark:text-emerald-400 mt-0.5 shrink-0" />
+                  <div>
+                    <div className="text-xs font-semibold text-stone-900 dark:text-stone-100">
+                      Template Per Kelas (Kelas {activeClass})
+                    </div>
+                    <div className="text-[11px] text-stone-500 dark:text-stone-400">
+                      Format input siswa khusus Kelas {activeClass} (.csv)
+                    </div>
+                  </div>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    downloadStudentTemplateMassal();
+                    setShowTemplateMenu(false);
+                    showToast('Template input siswa Massal (Kelas 1–6) berhasil diunduh.');
+                  }}
+                  className="w-full flex items-start gap-2.5 p-2.5 text-left rounded-lg hover:bg-sky-50 dark:hover:bg-sky-950/50 transition-colors cursor-pointer"
+                >
+                  <Layers className="w-4 h-4 text-sky-700 dark:text-sky-400 mt-0.5 shrink-0" />
+                  <div>
+                    <div className="text-xs font-semibold text-stone-900 dark:text-stone-100">
+                      Template Massal (Kelas 1 – 6)
+                    </div>
+                    <div className="text-[11px] text-stone-500 dark:text-stone-400">
+                      Input gabungan seluruh kelas dengan kolom Kelas (.csv)
+                    </div>
+                  </div>
+                </button>
+              </div>
+            )}
+          </div>
+
           <button
             type="button"
             onClick={() => setShowUploadModal(true)}

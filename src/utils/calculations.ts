@@ -204,7 +204,7 @@ export function checkTargetAchievement(
 
   const getJilidRank = (rawJilid?: string): number => {
     const val = (rawJilid || '').trim().toLowerCase();
-    if (!val) return 0;
+    if (!val || val === '-') return 0;
     if (val === 'jilid dasar' || val === 'dasar') return 1;
     if (val === 'jilid i' || val === 'jilid 1') return 2;
     if (val === 'jilid ii' || val === 'jilid 2') return 3;

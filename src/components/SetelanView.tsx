@@ -459,12 +459,30 @@ export const SetelanView: React.FC<SetelanViewProps> = ({
           </div>
 
           <div>
-            <label className="block font-semibold text-stone-600 dark:text-stone-400 mb-1">Semester</label>
+            <div className="flex items-center justify-between mb-1">
+              <label className="block font-semibold text-stone-600 dark:text-stone-400">Semester</label>
+              <div className="flex items-center gap-1">
+                <button
+                  type="button"
+                  onClick={() => handleFieldChange('semester', 'I (Satu) / Ganjil')}
+                  className="px-2 py-0.5 text-[10px] font-semibold bg-emerald-50 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 rounded hover:bg-emerald-100 cursor-pointer"
+                >
+                  Smt I (Ganjil)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleFieldChange('semester', 'II (Dua) / Genap')}
+                  className="px-2 py-0.5 text-[10px] font-semibold bg-emerald-50 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 rounded hover:bg-emerald-100 cursor-pointer"
+                >
+                  Smt II (Genap)
+                </button>
+              </div>
+            </div>
             <input
               type="text"
               value={school.semester}
               onChange={(e) => handleFieldChange('semester', e.target.value)}
-              className="w-full py-2 px-3 bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-stone-900 dark:text-stone-100 rounded-xl focus:outline-emerald-700 dark:focus:outline-emerald-500"
+              className="w-full py-2 px-3 bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-stone-900 dark:text-stone-100 rounded-xl focus:outline-emerald-700 dark:focus:outline-emerald-500 font-semibold"
             />
           </div>
 

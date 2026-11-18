@@ -2,6 +2,7 @@ import { AppState, Predikat, ClassTarget } from '../types';
 
 export const JILID_OPTIONS = [
   '',
+  '-',
   'Jilid Dasar',
   'Jilid I',
   'Jilid II',

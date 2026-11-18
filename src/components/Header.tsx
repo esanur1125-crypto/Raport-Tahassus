@@ -5,6 +5,7 @@ import { NAV_ITEMS } from './Sidebar';
 
 interface HeaderProps {
   school: SchoolInfo;
+  onUpdateSchool: (school: SchoolInfo) => void;
   activeClass: string;
   onClassChange: (className: string) => void;
   activeTab: string;
@@ -17,6 +18,7 @@ interface HeaderProps {
 
 export const Header: React.FC<HeaderProps> = ({
   school,
+  onUpdateSchool,
   activeClass,
   onClassChange,
   activeTab,
@@ -100,6 +102,24 @@ export const Header: React.FC<HeaderProps> = ({
               </>
             )}
           </button>
+
+          <label className="sr-only" htmlFor="topbar-semester-select">
+            Pilih Semester
+          </label>
+          <select
+            id="topbar-semester-select"
+            value={school.semester || 'II (Dua)'}
+            onChange={(e) => onUpdateSchool({ ...school, semester: e.target.value })}
+            className="py-1.5 px-2.5 text-xs font-semibold text-emerald-900 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 border border-emerald-200 dark:border-emerald-800 rounded-lg focus:outline-emerald-700 cursor-pointer whitespace-nowrap"
+            title="Pilih Semester aktif yang akan muncul di semua dokumen raport, jurnal & absensi"
+          >
+            <option value="I (Satu) / Ganjil">Semester I (Ganjil)</option>
+            <option value="II (Dua) / Genap">Semester II (Genap)</option>
+            <option value="I (Satu)">Semester I</option>
+            <option value="II (Dua)">Semester II</option>
+            <option value="Ganjil">Semester Ganjil</option>
+            <option value="Genap">Semester Genap</option>
+          </select>
 
           <label className="sr-only" htmlFor="topbar-class-select">
             Pilih Kelas

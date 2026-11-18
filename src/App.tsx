@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { AppState, Student, SchoolInfo, JournalEntry, AttendanceDay, ClassTarget } from './types';
-import { loadAppState, saveAppState } from './utils/storage';
+import { loadAppState, saveAppState, ParsedImportStudent } from './utils/storage';
 import { SEED_DATA, DEFAULT_CLASS_TARGETS } from './data/seedData';
 import { Header } from './components/Header';
 import { Sidebar } from './components/Sidebar';
@@ -154,27 +154,46 @@ export default function App() {
     handleSelectStudentId(newId);
   };
 
-  const handleImportStudents = (imported: Omit<Student, 'id' | 's'>[], mode: 'append' | 'replace') => {
-    const newStudents: Student[] = imported.map((item, idx) => ({
-      id: `std_imp_${Date.now()}_${idx}_${Math.random().toString(36).substr(2, 4)}`,
-      ...item,
-      s: {}
-    }));
+  const handleImportStudents = (imported: ParsedImportStudent[], mode: 'append' | 'replace') => {
+    const groupedByClass: Record<string, Student[]> = {};
+    const stamp = Date.now();
+
+    imported.forEach((item, idx) => {
+      const targetCls =
+        item.targetClass && ['1', '2', '3', '4', '5', '6'].includes(item.targetClass)
+          ? item.targetClass
+          : activeClass;
+      const { targetClass: _ignored, ...studentFields } = item;
+      if (!groupedByClass[targetCls]) {
+        groupedByClass[targetCls] = [];
+      }
+      groupedByClass[targetCls].push({
+        id: `std_imp_${stamp}_${idx}_${Math.random().toString(36).substr(2, 4)}`,
+        ...studentFields,
+        s: {}
+      });
+    });
 
     setState((prev) => {
-      const existing = prev.classes[activeClass] || [];
-      const updatedClass = mode === 'replace' ? newStudents : [...existing, ...newStudents];
+      const nextClasses = { ...prev.classes };
+      Object.entries(groupedByClass).forEach(([cls, list]) => {
+        const existing = nextClasses[cls] || [];
+        nextClasses[cls] = mode === 'replace' ? list : [...existing, ...list];
+      });
       return {
         ...prev,
-        classes: {
-          ...prev.classes,
-          [activeClass]: updatedClass
-        }
+        classes: nextClasses
       };
     });
 
-    if (newStudents[0]) {
-      handleSelectStudentId(newStudents[0].id);
+    const activeImported = groupedByClass[activeClass];
+    if (activeImported && activeImported[0]) {
+      handleSelectStudentId(activeImported[0].id);
+    } else {
+      const importedClassKeys = Object.keys(groupedByClass);
+      if (importedClassKeys.length === 1 && groupedByClass[importedClassKeys[0]][0]) {
+        setActiveClass(importedClassKeys[0]);
+      }
     }
   };
 
@@ -331,6 +350,7 @@ export default function App() {
         {/* App Header (Hidden on Print) */}
         <Header
           school={state.school}
+          onUpdateSchool={handleUpdateSchool}
           activeClass={activeClass}
           onClassChange={setActiveClass}
           activeTab={activeTab}

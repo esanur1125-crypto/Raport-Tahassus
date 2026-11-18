@@ -134,11 +134,23 @@ export function exportClassToCsv(students: Student[], className: string): void {
   URL.revokeObjectURL(url);
 }
 
-export function downloadStudentImportTemplate(): void {
-  const headers = ['Nama Siswa', 'NISN', 'Jenis Kelamin (L/P)', 'Orang Tua', 'Jilid', 'Hafalan Terakhir'];
-  const sampleRows = [
-    ['MUHAMMAD FARHAN', '3170981234', 'L', 'SUKIRNO', 'Jilid III', "Al-A'la"],
-    ['AISYAH NURUL JANNAH', '3170985678', 'P', 'H. AHMAD', 'Jilid II', 'Adh-Dhuha']
+import { DEFAULT_CLASS_TARGETS } from '../data/seedData';
+
+export interface ParsedImportStudent extends Omit<Student, 'id' | 's'> {
+  targetClass?: string;
+}
+
+export function downloadStudentTemplatePerClass(className: string = '4'): void {
+  const target = DEFAULT_CLASS_TARGETS[className] || DEFAULT_CLASS_TARGETS['4'];
+  const sampleJilid = target?.targetJilid || 'Jilid Dasar';
+  const sampleSurah = target?.targetHafalanSurah || 'An-Nas';
+
+  const headers = ['No', 'Nama Siswa', 'NISN', 'Jenis Kelamin (L/P)', 'Orang Tua', 'Jilid', 'Hafalan Terakhir'];
+  const sampleRows: string[][] = [
+    ['1', 'MUHAMMAD FARHAN', '3170981234', 'L', 'SUKIRNO', sampleJilid, sampleSurah],
+    ['2', 'AISYAH NURUL JANNAH', '3170985678', 'P', 'H. AHMAD', sampleJilid, sampleSurah],
+    // 8 baris kosong bernomor siap diisi di Excel
+    ...Array.from({ length: 8 }, (_, idx) => [String(idx + 3), '', '', '', '', '', ''])
   ];
 
   const csvContent =
@@ -152,51 +164,158 @@ export function downloadStudentImportTemplate(): void {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `Template_Upload_Siswa_Tahassus.csv`;
+  a.download = `Template_Input_Siswa_Kelas_${className}.csv`;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
 }
 
-export function parseStudentsFromText(rawText: string): Omit<Student, 'id' | 's'>[] {
-  const lines = rawText
+export function downloadStudentTemplateMassal(): void {
+  const headers = ['No', 'Kelas (1-6)', 'Nama Siswa', 'NISN', 'Jenis Kelamin (L/P)', 'Orang Tua', 'Jilid', 'Hafalan Terakhir'];
+  const sampleRows: string[][] = [
+    ['1', '1', 'AHMAD ZAKI AL-FATIH', '3170100001', 'L', 'BUDI SANTOSO', 'Jilid Dasar', 'An-Nas'],
+    ['2', '1', 'ZAHRA KHAIRUNNISA', '3170100002', 'P', 'HENDRA', 'Jilid Dasar', 'Al-Ikhlas'],
+    ['3', '2', 'MUHAMMAD RIZQI', '3170200001', 'L', 'SULAIMAN', 'Jilid I', 'Al-Maun'],
+    ['4', '3', 'SITI FATIMAH', '3170300001', 'P', 'MUHAMMAD ALI', 'Jilid II', 'Al-Qoriah'],
+    ['5', '4', 'ABDULLAH FAQIH', '3170400001', 'L', 'H. MUNAWAR', 'Jilid III', "Al-A'la"],
+    ['6', '5', 'NAILA SYARIFAH', '3170500001', 'P', 'AHMAD FAUZI', 'Jilid IV', 'Al-Muthaffifin'],
+    ['7', '6', 'HANIF AL-GHIFFARI', '3170600001', 'L', 'SYAMSUDIN', 'Jilid V', 'An-Naba'],
+    // Tambahan baris kosong siap isi per kelas 1-6
+    ['8', '1', '', '', '', '', '', ''],
+    ['9', '2', '', '', '', '', '', ''],
+    ['10', '3', '', '', '', '', '', ''],
+    ['11', '4', '', '', '', '', '', ''],
+    ['12', '5', '', '', '', '', '', ''],
+    ['13', '6', '', '', '', '', '', '']
+  ];
+
+  const csvContent =
+    '\uFEFF' +
+    [
+      headers.join(','),
+      ...sampleRows.map((r) => r.map((cell) => `"${cell.replace(/"/g, '""')}"`).join(','))
+    ].join('\r\n');
+
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `Template_Input_Siswa_Massal_Kelas_1-6.csv`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+export function downloadStudentImportTemplate(className?: string): void {
+  downloadStudentTemplatePerClass(className || '4');
+}
+
+function normalizeClassValue(raw?: string): string | undefined {
+  const val = (raw || '').trim().toUpperCase();
+  if (!val) return undefined;
+  const cleaned = val.replace(/^KELAS\s*/i, '').replace(/^KLS\s*/i, '').trim();
+  if (['1', '2', '3', '4', '5', '6'].includes(cleaned)) return cleaned;
+  const romanMap: Record<string, string> = {
+    I: '1',
+    II: '2',
+    III: '3',
+    IV: '4',
+    V: '5',
+    VI: '6'
+  };
+  return romanMap[cleaned];
+}
+
+function normalizeJilidValue(raw?: string): string {
+  const val = (raw || '').trim();
+  if (!val) return '';
+  const low = val.toLowerCase();
+  if (low === 'jilid dasar' || low === 'dasar') return 'Jilid Dasar';
+  if (low === 'jilid i' || low === 'jilid 1' || low === 'i' || low === '1') return 'Jilid I';
+  if (low === 'jilid ii' || low === 'jilid 2' || low === 'ii' || low === '2') return 'Jilid II';
+  if (low === 'jilid iii' || low === 'jilid 3' || low === 'iii' || low === '3') return 'Jilid III';
+  if (low === 'jilid iv' || low === 'jilid 4' || low === 'iv' || low === '4') return 'Jilid IV';
+  if (low === 'jilid v' || low === 'jilid 5' || low === 'v' || low === '5') return 'Jilid V';
+  if (low === 'jilid vi' || low === 'jilid 6') return 'Jilid V';
+  if (low === "al-qur'an" || low === 'alquran' || low === 'al quran' || low === "al-qur’an") return "Al-Qur'an";
+  return val;
+}
+
+function splitCsvLine(line: string): string[] {
+  let delimiter = ',';
+  if (line.includes('\t')) {
+    delimiter = '\t';
+  } else if (line.includes(';')) {
+    delimiter = ';';
+  }
+
+  const regex = new RegExp(`(?:^|${delimiter})(?:"([^"]*(?:""[^"]*)*)"|([^"${delimiter}]*))`, 'g');
+  const cols: string[] = [];
+  let match;
+  while ((match = regex.exec(line)) !== null) {
+    // Prevent infinite loop on empty matches
+    if (match.index === regex.lastIndex) {
+      regex.lastIndex++;
+    }
+    const val = match[1] !== undefined ? match[1].replace(/""/g, '"') : match[2];
+    cols.push((val || '').trim());
+  }
+  return cols;
+}
+
+export function parseStudentsFromText(rawText: string): ParsedImportStudent[] {
+  const cleanText = rawText.replace(/^\uFEFF/, '');
+  const lines = cleanText
     .split(/\r?\n/)
     .map((l) => l.trim())
     .filter(Boolean);
   if (!lines.length) return [];
 
-  const results: Omit<Student, 'id' | 's'>[] = [];
+  const results: ParsedImportStudent[] = [];
 
-  for (const line of lines) {
-    // Check delimiter: tab, semicolon, or comma
-    let delimiter = ',';
-    if (line.includes('\t')) {
-      delimiter = '\t';
-    } else if (line.includes(';')) {
-      delimiter = ';';
-    }
+  interface HeaderColumnMap {
+    kelas?: number;
+    nama?: number;
+    nisn?: number;
+    jk?: number;
+    ortu?: number;
+    jilid?: number;
+    hafalan?: number;
+  }
 
-    // Split considering possible quotes
-    const regex = new RegExp(`(?:^|${delimiter})(?:"([^"]*(?:""[^"]*)*)"|([^"${delimiter}]*))`, 'g');
-    const cols: string[] = [];
-    let match;
-    while ((match = regex.exec(line)) !== null) {
-      let val = match[1] !== undefined ? match[1].replace(/""/g, '"') : match[2];
-      cols.push((val || '').trim());
-    }
+  // Optional header column mapping
+  let headerMap: HeaderColumnMap | null = null;
 
+  for (let lineIdx = 0; lineIdx < lines.length; lineIdx++) {
+    const cols = splitCsvLine(lines[lineIdx]);
     if (!cols.length) continue;
 
-    // Skip header row if contains 'nama' or 'nisn'
-    const firstCol = cols[0].toLowerCase();
-    if (firstCol.includes('nama') || firstCol === 'no' || firstCol === 'nisn') {
+    // Detect header row
+    const lowerCols = cols.map((c) => c.toLowerCase());
+    const hasHeaderKeyword = lowerCols.some(
+      (c) => c.includes('nama') || c === 'nisn' || c.startsWith('kelas') || c === 'no'
+    );
+
+    if (hasHeaderKeyword) {
+      const map: HeaderColumnMap = {};
+      lowerCols.forEach((h, i) => {
+        if (h.includes('kelas') || h === 'kls') map.kelas = i;
+        else if (h.includes('nama')) map.nama = i;
+        else if (h.includes('nisn') || h === 'nis') map.nisn = i;
+        else if (h.includes('kelamin') || h === 'jk' || h.includes('l/p')) map.jk = i;
+        else if (h.includes('orang tua') || h.includes('ortu') || h.includes('wali')) map.ortu = i;
+        else if (h.includes('jilid')) map.jilid = i;
+        else if (h.includes('hafalan') || h.includes('surat') || h.includes('surah')) map.hafalan = i;
+      });
+      if (map.nama !== undefined) {
+        headerMap = map;
+      }
       continue;
     }
 
-    // Identify columns:
-    // Pattern 1: No, Nama, NISN, JK, Ortu, Jilid, Hafalan
-    // Pattern 2: Nama, NISN, JK, Ortu, Jilid, Hafalan
+    let targetClass: string | undefined;
     let nama = '';
     let nisn = '-';
     let jk: 'L' | 'P' = 'L';
@@ -204,26 +323,51 @@ export function parseStudentsFromText(rawText: string): Omit<Student, 'id' | 's'
     let jilid = '';
     let hafalan = '';
 
-    const isFirstColNumber = /^\d+$/.test(cols[0]) && cols.length > 2;
-    const offset = isFirstColNumber ? 1 : 0;
-
-    nama = cols[offset] || '';
-    if (!nama) continue;
-
-    nisn = cols[offset + 1] || '-';
-
-    const rawJk = (cols[offset + 2] || '').toUpperCase();
-    if (rawJk.startsWith('P') || rawJk === 'PEREMPUAN') {
-      jk = 'P';
+    if (headerMap && headerMap.nama !== undefined) {
+      targetClass = headerMap.kelas !== undefined ? normalizeClassValue(cols[headerMap.kelas]) : undefined;
+      nama = (cols[headerMap.nama] || '').trim();
+      nisn = headerMap.nisn !== undefined ? cols[headerMap.nisn] || '-' : '-';
+      const rawJk = (headerMap.jk !== undefined ? cols[headerMap.jk] || '' : '').toUpperCase();
+      jk = rawJk.startsWith('P') || rawJk === 'PEREMPUAN' ? 'P' : 'L';
+      ortu = headerMap.ortu !== undefined ? cols[headerMap.ortu] || '-' : '-';
+      jilid = headerMap.jilid !== undefined ? normalizeJilidValue(cols[headerMap.jilid]) : '';
+      hafalan = headerMap.hafalan !== undefined ? cols[headerMap.hafalan] || '' : '';
     } else {
-      jk = 'L';
+      // Headerless heuristic:
+      // Pattern 1 (Massal with No): No, Kelas, Nama, NISN, JK, Ortu, Jilid, Hafalan
+      // Pattern 2 (Massal no No): Kelas, Nama, NISN, JK, Ortu, Jilid, Hafalan
+      // Pattern 3 (Per-kelas with No): No, Nama, NISN, JK, Ortu, Jilid, Hafalan
+      // Pattern 4 (Per-kelas no No): Nama, NISN, JK, Ortu, Jilid, Hafalan
+      const isCol0Number = /^\d+$/.test(cols[0]);
+      const col1Class = normalizeClassValue(cols[1]);
+      const col0Class = normalizeClassValue(cols[0]);
+      const hasLetters = (s?: string) => Boolean(s && /[A-Za-z]/.test(s));
+
+      let offset = 0;
+      if (isCol0Number && col1Class && hasLetters(cols[2]) && cols.length >= 6) {
+        targetClass = col1Class;
+        offset = 2;
+      } else if (col0Class && hasLetters(cols[1]) && cols.length >= 6 && !/^\d{5,}$/.test(cols[1] || '')) {
+        targetClass = col0Class;
+        offset = 1;
+      } else if (isCol0Number && cols.length > 2) {
+        offset = 1;
+      }
+
+      nama = (cols[offset] || '').trim();
+      nisn = cols[offset + 1] || '-';
+      const rawJk = (cols[offset + 2] || '').toUpperCase();
+      jk = rawJk.startsWith('P') || rawJk === 'PEREMPUAN' ? 'P' : 'L';
+      ortu = cols[offset + 3] || '-';
+      jilid = normalizeJilidValue(cols[offset + 4]);
+      hafalan = cols[offset + 5] || '';
     }
 
-    ortu = cols[offset + 3] || '-';
-    jilid = cols[offset + 4] || '';
-    hafalan = cols[offset + 5] || '';
+    // Skip blank or numeric-only placeholder names
+    if (!nama || /^\d+$/.test(nama)) continue;
 
     results.push({
+      targetClass,
       nama: nama.toUpperCase(),
       nisn: nisn || '-',
       jk,
