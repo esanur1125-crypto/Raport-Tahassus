@@ -24,6 +24,15 @@ export const NilaiInputStudentPrintDocument: React.FC<NilaiInputStudentPrintDocu
 
   return (
     <article className="print-page w-[210mm] min-h-[297mm] mx-auto bg-white text-stone-900 p-8 sm:p-12 border border-stone-300 shadow-md font-doc text-xs leading-normal box-border">
+      <style>{`
+        @media print {
+          .print-page {
+            page-break-after: always;
+            break-after: page;
+          }
+        }
+      `}</style>
+
       {/* KOP SURAT */}
       <div className="grid grid-cols-[70px_1fr_70px] items-center gap-3 text-center border-b-[3px] border-double border-stone-900 pb-3 mb-4">
         <div className="flex items-center justify-center h-16 w-16">
@@ -52,8 +61,10 @@ export const NilaiInputStudentPrintDocument: React.FC<NilaiInputStudentPrintDocu
       </div>
 
       {/* JUDUL */}
-      <div className="text-center font-bold text-sm tracking-wider uppercase my-2 underline underline-offset-4">
-        LEMBAR RINCIAN & INPUT NILAI TAHASSUS PER SISWA
+      <div className="text-center my-2">
+        <span className="font-bold text-sm tracking-wider uppercase border-b-2 border-stone-900 pb-0.5 px-4 inline-block">
+          LEMBAR RINCIAN & INPUT NILAI TAHASSUS PER SISWA
+        </span>
       </div>
 
       {/* BIODATA SISWA */}
@@ -134,19 +145,19 @@ export const NilaiInputStudentPrintDocument: React.FC<NilaiInputStudentPrintDocu
       </table>
 
       {/* TANDA TANGAN */}
-      <div className="grid grid-cols-2 gap-4 mt-6 text-center text-xs">
+      <div className="grid grid-cols-2 gap-4 mt-6 text-center text-xs break-inside-avoid page-break-inside-avoid">
         <div>
           <div>Mengetahui,</div>
           <div>Kepala Madrasah</div>
           <div className="h-16" />
-          <div className="font-bold underline">{school.kepala}</div>
+          <div className="font-bold border-b border-stone-900 inline-block px-8 pb-0.5">{school.kepala}</div>
         </div>
 
         <div>
           <div>{school.tanggal}</div>
           <div>Guru Pengampu Tahassus</div>
           <div className="h-16" />
-          <div className="font-bold underline">{school.guru}</div>
+          <div className="font-bold border-b border-stone-900 inline-block px-8 pb-0.5">{school.guru}</div>
         </div>
       </div>
     </article>

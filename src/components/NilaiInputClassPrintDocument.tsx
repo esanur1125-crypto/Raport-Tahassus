@@ -23,18 +23,22 @@ export const NilaiInputClassPrintDocument: React.FC<NilaiInputClassPrintDocument
 
   return (
     <article className="print-page w-[297mm] min-h-[210mm] mx-auto bg-white text-stone-900 p-6 sm:p-8 border border-stone-300 shadow-md font-doc text-[10px] leading-tight box-border">
-      {/* Set landscape print styling override */}
       <style>{`
         @media print {
           @page {
             size: A4 landscape;
-            margin: 8mm;
+            margin: 6mm;
+          }
+          .no-print { display: none !important; }
+          .print-page {
+            page-break-after: avoid;
+            break-after: avoid;
           }
         }
       `}</style>
 
       {/* KOP SURAT */}
-      <div className="grid grid-cols-[60px_1fr_60px] items-center gap-3 text-center border-b-[3px] border-double border-stone-900 pb-2.5 mb-3">
+      <div className="grid grid-cols-[60px_1fr_60px] items-center gap-3 text-center border-b-[3px] border-double border-stone-900 pb-2 mb-2.5">
         <div className="flex items-center justify-center h-14 w-14">
           {school.logoL && (
             <img src={school.logoL} alt="Logo" className="max-h-14 max-w-14 object-contain" />
@@ -44,10 +48,10 @@ export const NilaiInputClassPrintDocument: React.FC<NilaiInputClassPrintDocument
           <div className="text-[10px] uppercase font-bold tracking-wider text-stone-800">
             {school.yayasan}
           </div>
-          <h2 className="text-lg font-bold tracking-tight text-stone-900 uppercase my-0.5">
+          <h2 className="text-base font-bold tracking-tight text-stone-900 uppercase my-0.5">
             {school.nama}
           </h2>
-          <div className="text-[9.5px] text-stone-700 leading-tight">
+          <div className="text-[9px] text-stone-700 leading-tight">
             NSM: {school.nsm} · NPSN: {school.npsn} · {addressLine}, Kec. {school.kec}, Kab. {school.kab} – {school.prov}
           </div>
         </div>
@@ -59,12 +63,14 @@ export const NilaiInputClassPrintDocument: React.FC<NilaiInputClassPrintDocument
       </div>
 
       {/* JUDUL */}
-      <div className="text-center font-bold text-xs tracking-wider uppercase my-1.5 underline underline-offset-4">
-        MATRIX REKAPITULASI INPUT NILAI & CAPAIAN SURAT TAHASSUS (JUZ 30) KELAS {ROMAN_CLASS[className] || className}
+      <div className="text-center my-1.5">
+        <span className="font-bold text-xs tracking-wider uppercase border-b-2 border-stone-900 pb-0.5 px-4 inline-block">
+          MATRIX REKAPITULASI INPUT NILAI & CAPAIAN SURAT TAHASSUS (JUZ 30) KELAS {ROMAN_CLASS[className] || className}
+        </span>
       </div>
 
       {/* INFO RINGKAS */}
-      <div className="flex justify-between items-center text-[10.5px] mb-2.5 pb-1.5 border-b border-stone-300">
+      <div className="flex justify-between items-center text-[10px] mb-2 pb-1 border-b border-stone-300">
         <div>
           <span>Tahun Ajaran: <b>{school.tahun}</b></span>
           <span className="mx-2">·</span>
@@ -82,7 +88,7 @@ export const NilaiInputClassPrintDocument: React.FC<NilaiInputClassPrintDocument
       </div>
 
       {/* MATRIX TABLE (Students x 37 Surahs) */}
-      <div className="overflow-x-auto mb-3">
+      <div className="overflow-x-auto mb-2">
         <table className="w-full border border-stone-900 border-collapse text-[9px]">
           <thead>
             <tr className="bg-stone-100 border-b border-stone-900 font-bold text-center">
@@ -111,7 +117,7 @@ export const NilaiInputClassPrintDocument: React.FC<NilaiInputClassPrintDocument
           </thead>
           <tbody>
             {stats.rows.map(({ student, calc }, idx) => (
-              <tr key={student.id} className="border-b border-stone-800 h-6">
+              <tr key={student.id} className="border-b border-stone-800 h-5">
                 <td className="py-0.5 px-1 text-center border-r border-stone-800 font-mono">{idx + 1}</td>
                 <td className="py-0.5 px-2 text-left border-r border-stone-800 font-semibold truncate max-w-[130px]">{student.nama}</td>
                 <td className="py-0.5 px-1 text-center border-r border-stone-800 font-mono text-[8.5px]">{student.nisn || '–'}</td>
@@ -142,8 +148,8 @@ export const NilaiInputClassPrintDocument: React.FC<NilaiInputClassPrintDocument
       </div>
 
       {/* SURAH LEGEND KEY */}
-      <div className="border border-stone-800 p-2 mb-3 text-[9px] bg-stone-50/60 rounded">
-        <div className="font-bold text-stone-900 mb-1 uppercase tracking-wider">Keterangan Nomor Kolom Surat Juz 30 (1 s.d. 37):</div>
+      <div className="border border-stone-800 p-1.5 mb-2 text-[8.5px] bg-stone-50/60 rounded">
+        <div className="font-bold text-stone-900 mb-0.5 uppercase tracking-wider">Keterangan Nomor Kolom Surat Juz 30 (1 s.d. 37):</div>
         <div className="grid grid-cols-4 sm:grid-cols-6 lg:grid-cols-8 gap-x-2 gap-y-0.5 text-stone-700">
           {surahList.map((sName, sIdx) => (
             <div key={sIdx} className="truncate">
@@ -154,19 +160,19 @@ export const NilaiInputClassPrintDocument: React.FC<NilaiInputClassPrintDocument
       </div>
 
       {/* TANDA TANGAN */}
-      <div className="grid grid-cols-2 gap-4 mt-6 text-center text-xs">
+      <div className="grid grid-cols-2 gap-4 mt-4 text-center text-xs break-inside-avoid page-break-inside-avoid">
         <div>
           <div>Mengetahui,</div>
           <div>Kepala Madrasah</div>
-          <div className="h-14" />
-          <div className="font-bold underline">{school.kepala}</div>
+          <div className="h-12" />
+          <div className="font-bold border-b border-stone-900 inline-block px-8 pb-0.5">{school.kepala}</div>
         </div>
 
         <div>
           <div>{school.tanggal}</div>
           <div>Guru Pengampu Tahassus</div>
-          <div className="h-14" />
-          <div className="font-bold underline">{school.guru}</div>
+          <div className="h-12" />
+          <div className="font-bold border-b border-stone-900 inline-block px-8 pb-0.5">{school.guru}</div>
         </div>
       </div>
     </article>
