@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Student, ScoreTuple, ClassTarget } from '../types';
 import { calculateStudent, formatScore, getPredikat, getSurahAverage, getPredikatBadgeClass, checkTargetAchievement } from '../utils/calculations';
 import { JILID_OPTIONS } from '../data/seedData';
-import { ChevronLeft, ChevronRight, Sparkles, Trash2, CheckCircle2, Target } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Sparkles, Trash2, CheckCircle2, Target, Printer } from 'lucide-react';
 
 interface NilaiViewProps {
   students: Student[];
@@ -12,6 +12,7 @@ interface NilaiViewProps {
   activeClass: string;
   target?: ClassTarget;
   onUpdateStudent: (updated: Student) => void;
+  onPrintNilaiInput?: () => void;
 }
 
 export const NilaiView: React.FC<NilaiViewProps> = ({
@@ -21,7 +22,8 @@ export const NilaiView: React.FC<NilaiViewProps> = ({
   surahList,
   activeClass,
   target,
-  onUpdateStudent
+  onUpdateStudent,
+  onPrintNilaiInput
 }) => {
   const [quickScoreVal, setQuickScoreVal] = useState<number>(80);
   const [showBatchModal, setShowBatchModal] = useState(false);
@@ -200,6 +202,19 @@ export const NilaiView: React.FC<NilaiViewProps> = ({
               <Sparkles className="w-3.5 h-3.5" />
               <span>Bantuan Nilai</span>
             </button>
+
+            {/* Print Nilai Input Form per Kelas */}
+            {onPrintNilaiInput && (
+              <button
+                type="button"
+                onClick={onPrintNilaiInput}
+                className="py-2 px-3 text-xs font-semibold text-stone-700 dark:text-stone-200 bg-white dark:bg-stone-800 hover:bg-stone-50 dark:hover:bg-stone-700 border border-stone-200 dark:border-stone-700 rounded-xl transition-colors cursor-pointer flex items-center gap-1.5 shadow-2xs"
+                title="Cetak formulir lembar kerja input nilai siswa per kelas A4"
+              >
+                <Printer className="w-3.5 h-3.5 text-emerald-800 dark:text-emerald-400" />
+                <span>Cetak Form Input</span>
+              </button>
+            )}
           </div>
         </div>
 

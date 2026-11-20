@@ -14,6 +14,7 @@ import { SetelanView } from './components/SetelanView';
 import { RaportDocument } from './components/RaportDocument';
 import { LegerPrintDocument } from './components/LegerPrintDocument';
 import { RekapNilaiPrintDocument } from './components/RekapNilaiPrintDocument';
+import { NilaiInputPrintDocument } from './components/NilaiInputPrintDocument';
 import { JurnalPrintDocument } from './components/JurnalPrintDocument';
 import { AbsensiPrintDocument } from './components/AbsensiPrintDocument';
 import { AbsensiMingguanPrintDocument } from './components/AbsensiMingguanPrintDocument';
@@ -26,6 +27,7 @@ type PrintType =
   | 'raport-batch'
   | 'leger'
   | 'rekap-nilai'
+  | 'nilai-input'
   | 'jurnal'
   | 'absensi-harian'
   | 'absensi-mingguan'
@@ -313,6 +315,13 @@ export default function App() {
     }, 150);
   };
 
+  const handlePrintNilaiInput = () => {
+    setPrintType('nilai-input');
+    setTimeout(() => {
+      window.print();
+    }, 150);
+  };
+
   const handlePrintJurnal = (config: JurnalPrintConfig) => {
     setJurnalPrintConfig(config);
     setPrintType('jurnal');
@@ -396,6 +405,7 @@ export default function App() {
             activeClass={activeClass}
             target={activeClassTarget}
             onUpdateStudent={handleUpdateStudent}
+            onPrintNilaiInput={handlePrintNilaiInput}
           />
         )}
 
@@ -509,6 +519,15 @@ export default function App() {
             className={activeClass}
             target={activeClassTarget}
             surahList={state.surah}
+          />
+        )}
+
+        {printType === 'nilai-input' && (
+          <NilaiInputPrintDocument
+            students={currentClassStudents}
+            school={state.school}
+            className={activeClass}
+            target={activeClassTarget}
           />
         )}
 
