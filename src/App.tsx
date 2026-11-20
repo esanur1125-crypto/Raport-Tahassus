@@ -14,7 +14,8 @@ import { SetelanView } from './components/SetelanView';
 import { RaportDocument } from './components/RaportDocument';
 import { LegerPrintDocument } from './components/LegerPrintDocument';
 import { RekapNilaiPrintDocument } from './components/RekapNilaiPrintDocument';
-import { NilaiInputPrintDocument } from './components/NilaiInputPrintDocument';
+import { NilaiInputClassPrintDocument } from './components/NilaiInputClassPrintDocument';
+import { NilaiInputStudentPrintDocument } from './components/NilaiInputStudentPrintDocument';
 import { JurnalPrintDocument } from './components/JurnalPrintDocument';
 import { AbsensiPrintDocument } from './components/AbsensiPrintDocument';
 import { AbsensiMingguanPrintDocument } from './components/AbsensiMingguanPrintDocument';
@@ -27,7 +28,8 @@ type PrintType =
   | 'raport-batch'
   | 'leger'
   | 'rekap-nilai'
-  | 'nilai-input'
+  | 'nilai-input-class'
+  | 'nilai-input-student'
   | 'jurnal'
   | 'absensi-harian'
   | 'absensi-mingguan'
@@ -315,8 +317,15 @@ export default function App() {
     }, 150);
   };
 
-  const handlePrintNilaiInput = () => {
-    setPrintType('nilai-input');
+  const handlePrintNilaiInputClass = () => {
+    setPrintType('nilai-input-class');
+    setTimeout(() => {
+      window.print();
+    }, 150);
+  };
+
+  const handlePrintNilaiInputStudent = () => {
+    setPrintType('nilai-input-student');
     setTimeout(() => {
       window.print();
     }, 150);
@@ -405,7 +414,8 @@ export default function App() {
             activeClass={activeClass}
             target={activeClassTarget}
             onUpdateStudent={handleUpdateStudent}
-            onPrintNilaiInput={handlePrintNilaiInput}
+            onPrintNilaiInputClass={handlePrintNilaiInputClass}
+            onPrintNilaiInputStudent={handlePrintNilaiInputStudent}
           />
         )}
 
@@ -522,11 +532,22 @@ export default function App() {
           />
         )}
 
-        {printType === 'nilai-input' && (
-          <NilaiInputPrintDocument
+        {printType === 'nilai-input-class' && (
+          <NilaiInputClassPrintDocument
             students={currentClassStudents}
             school={state.school}
             className={activeClass}
+            target={activeClassTarget}
+            surahList={state.surah}
+          />
+        )}
+
+        {printType === 'nilai-input-student' && currentStudent && (
+          <NilaiInputStudentPrintDocument
+            student={currentStudent}
+            school={state.school}
+            className={activeClass}
+            surahList={state.surah}
             target={activeClassTarget}
           />
         )}

@@ -12,7 +12,8 @@ interface NilaiViewProps {
   activeClass: string;
   target?: ClassTarget;
   onUpdateStudent: (updated: Student) => void;
-  onPrintNilaiInput?: () => void;
+  onPrintNilaiInputClass?: () => void;
+  onPrintNilaiInputStudent?: () => void;
 }
 
 export const NilaiView: React.FC<NilaiViewProps> = ({
@@ -23,7 +24,8 @@ export const NilaiView: React.FC<NilaiViewProps> = ({
   activeClass,
   target,
   onUpdateStudent,
-  onPrintNilaiInput
+  onPrintNilaiInputClass,
+  onPrintNilaiInputStudent
 }) => {
   const [quickScoreVal, setQuickScoreVal] = useState<number>(80);
   const [showBatchModal, setShowBatchModal] = useState(false);
@@ -203,16 +205,29 @@ export const NilaiView: React.FC<NilaiViewProps> = ({
               <span>Bantuan Nilai</span>
             </button>
 
-            {/* Print Nilai Input Form per Kelas */}
-            {onPrintNilaiInput && (
+            {/* Print Per Kelas */}
+            {onPrintNilaiInputClass && (
               <button
                 type="button"
-                onClick={onPrintNilaiInput}
+                onClick={onPrintNilaiInputClass}
                 className="py-2 px-3 text-xs font-semibold text-stone-700 dark:text-stone-200 bg-white dark:bg-stone-800 hover:bg-stone-50 dark:hover:bg-stone-700 border border-stone-200 dark:border-stone-700 rounded-xl transition-colors cursor-pointer flex items-center gap-1.5 shadow-2xs"
-                title="Cetak formulir lembar kerja input nilai siswa per kelas A4"
+                title="Cetak rekapitulasi input nilai seluruh siswa per kelas A4"
               >
                 <Printer className="w-3.5 h-3.5 text-emerald-800 dark:text-emerald-400" />
-                <span>Cetak Form Input</span>
+                <span>Cetak Per Kelas</span>
+              </button>
+            )}
+
+            {/* Print Per Siswa */}
+            {onPrintNilaiInputStudent && (
+              <button
+                type="button"
+                onClick={onPrintNilaiInputStudent}
+                className="py-2 px-3 text-xs font-semibold text-emerald-800 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/70 hover:bg-emerald-100 dark:hover:bg-emerald-900/70 border border-emerald-200 dark:border-emerald-800 rounded-xl transition-colors cursor-pointer flex items-center gap-1.5 shadow-2xs"
+                title="Cetak rincian input nilai siswa yang sedang dipilih A4"
+              >
+                <Printer className="w-3.5 h-3.5 text-emerald-700 dark:text-emerald-400" />
+                <span>Cetak Per Siswa</span>
               </button>
             )}
           </div>
