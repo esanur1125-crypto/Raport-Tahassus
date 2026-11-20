@@ -28,6 +28,7 @@ interface RekapViewProps {
   onSelectStudent: (studentId: string, targetTab: 'raport' | 'nilai') => void;
   onSwitchClass: (className: string) => void;
   onPrintLeger?: () => void;
+  onPrintRekapNilai?: () => void;
 }
 
 export const RekapView: React.FC<RekapViewProps> = ({
@@ -38,7 +39,8 @@ export const RekapView: React.FC<RekapViewProps> = ({
   surahList,
   onSelectStudent,
   onSwitchClass,
-  onPrintLeger
+  onPrintLeger,
+  onPrintRekapNilai
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState<'nilai' | 'nama' | 'hafalan'>('nilai');
@@ -577,6 +579,19 @@ export const RekapView: React.FC<RekapViewProps> = ({
               >
                 <Printer className="w-3.5 h-3.5 text-emerald-800 dark:text-emerald-400" />
                 <span>Cetak Leger (A4)</span>
+              </button>
+            )}
+
+            {/* Print Rekap Nilai button */}
+            {onPrintRekapNilai && (
+              <button
+                type="button"
+                onClick={onPrintRekapNilai}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-emerald-800 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/70 hover:bg-emerald-100 dark:hover:bg-emerald-900/70 border border-emerald-200 dark:border-emerald-800 rounded-lg transition-colors cursor-pointer shadow-2xs"
+                title="Cetak rekapan nilai dan capaian kompetensi siswa A4"
+              >
+                <Printer className="w-3.5 h-3.5 text-emerald-700 dark:text-emerald-400" />
+                <span>Cetak Rekap Nilai (A4)</span>
               </button>
             )}
 
